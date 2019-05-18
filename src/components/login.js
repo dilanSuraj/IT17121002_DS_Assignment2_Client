@@ -4,103 +4,114 @@ import SignUpComponent from './signup';
 import ReactDOM from 'react-dom';
 import { Button, Form } from 'react-bootstrap';
 import App from '../App';
-
+import axios from 'axios';
+import swal from 'sweetalert2';
 
 
 class Login extends Component {
 
-    toggle = function(e) {
+    constructor(props) {
+        super(props);
 
-        let dbURL_User = "http://localhost:4001/user/";
+        this.state = {
+            name: '',
+            email: '',
+            password: '',
+            address: '',
+            mobileNumber: '',
+            NICNo: ''
 
-        
-        const email = this.refs.email.value;
-        const password = this.refs.password.value;
-        
-
-        if (email == '' || password == '') {
-            alert('Email or Password is empty');
         }
-      
-        else {
-            var credentials = {
-                "email":email,
-                "password":password
-            };
+    }
 
-            var count = false;
+    onChangeEmail = (e) => {
+        this.setState({
+            email: e.target.value
+        });
+    }
 
-            fetch(dbURL_User + credentials.email+'/'+credentials.password, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(
-                response => {
-                    return response.json();
-                }).then(data => {
-                    var user = JSON.stringify(data);
-                    console.log(user);
+    onChangePassword = (e) => {
+        this.setState({
+            password: e.target.value
+        });
+    }
 
-                    if (user != '[]') {
-                        console.log(user);
-                        count = true;
-                        console.log(data);
-                        alert("Login Successful!");
+    login = () => {
+        axios.get('http://localhost:4001/user/' + this.state.email + '/' + this.state.password).then(res => {
 
-                        for(var user of data){
-                            var name = user.name;
-                            var NICNumber = user.NICNo;
-                        }
-                        ReactDOM.render(
-                            <App name={name} NICNo={NICNumber} email={email}/>, document.getElementById('root')
-                        )
-                    }
-                    else {
-                        alert('Invalid username or password');
-                    }
-                }).catch(err => {
-                    alert("First Err" + err);
+            var userDetails = JSON.stringify(res.data);
+
+            if (userDetails != '[]') {
+
+                var name = res.data.name;
+                var address = res.data.address;
+                var mobileNumber = res.data.mobileNumber;
+                var NICNo = res.data.NICNo;
+
+                this.setState({
+                    name: name,
+                    address: address,
+                    mobileNumber: mobileNumber,
+                    NICNo: NICNo
                 })
 
-                if(count == true){
-                    ReactDOM.render(<App/>, document.getElementById('root'));
-                }
-                else{
-                    ReactDOM.render(<Login/>, document.getElementById('root'));
-                }
-        }
+                swal.fire({
+                    title: "Succesfull",
+                    text: "Succesfully logged In",
+                    type: "success",
+                    timer: 1000,
+                    showConfirmButton: true
+                }, function () {
+                    console.log('home');
+                    window.location.href = "../index.js";
+                });
 
-    }
-    signup() {
-        ReactDOM.render(<SignUpComponent />, document.getElementById('root'));
+
+            }
+            else{
+
+                 swal.fire({
+                    title: "Error",
+                    text: "Login Unsuccesful!",
+                    type: "error",
+                    timer: 1000,
+                    showConfirmButton: true
+                }, function () {
+                    console.log('home');
+                    window.location.href = "../index.js";
+                });
+
+            }
+
+
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     render() {
 
         return (
-            <Form>
-                <h3> Login</h3>
-                
-                <Form.Group controlId="formBasicEmail">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="Enter email" ref="email"/>
-                    <Form.Text className="text-muted">
-                       We will never share your email anyone
+            <div className="container shadow-lg p-3 mb-5 bg-white rounded" style={{ marginTop: 120 }}>
+                <Form>
+                    <h3> Login</h3>
+
+                    <Form.Group controlId="formBasicEmail">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="email" placeholder="Enter email" value={this.state.email} onChange={this.onChangeEmail} />
+                        <Form.Text className="text-muted">
+                            We will never share your email anyone
                     </Form.Text>
-                </Form.Group>
-                <Form.Group controlId="formBasicPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" placeholder="Password" ref="password"/>
-                </Form.Group>
-                
-                <Button variant="primary" type="button" onClick={() =>{this.signup()}}>
-                    SignUp
+                    </Form.Group>
+                    <Form.Group controlId="formBasicPassword">
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control type="password" placeholder="Password" value={this.state.password} onChange={this.onChangePassword} />
+                    </Form.Group>
+                    <Button variant="primary" type="button" onClick={this.login}>
+                        Login
                 </Button>
-                <Button variant="primary" type="submit" onClick = {() => {this.toggle()}}>
-                    Login
-                </Button>
-            </Form>
+                </Form>
+            </div>
         );
     }
 

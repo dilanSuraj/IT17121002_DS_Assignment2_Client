@@ -3,133 +3,189 @@ import '../App';
 import LoginComponent from './login';
 import ReactDOM from 'react-dom';
 import { Button, Form } from 'react-bootstrap';
+import Axios from 'axios';
+import swal from 'sweetalert2';
 
 
 class Signup extends Component {
 
     constructor(props) {
         super(props);
+
+        this.state = {
+
+            name: '',
+            email: '',
+            password: '',
+            cPassword: '',
+            address: '',
+            mobileNumber: '',
+            NICNo: ''
+
+        }
+
+    }
+    onChangeName = (e) => {
+        this.setState({
+
+            name: e.target.value
+
+        });
     }
 
-    signup() {
+    onChangeEmail = (e) => {
+        this.setState({
 
-        let dbURL_User = "http://localhost:4001/user/";
+            email: e.target.value
 
-        const uname = this.refs.uname.value;
-        const email = this.refs.email.value;
-        const password = this.refs.password.value;
-        const cpassword = this.refs.cpassword.value;
-        const address = this.refs.address.value;
-        const mobileNumber = this.refs.mobileNumber.value;
-        const NICNo = this.refs.NICNo.value;
+        });
+    }
 
-        if (uname == '' || email == '' || password == '' || cpassword == '' || address == '' || mobileNumber == '' || NICNo == '') {
-            alert('One or more fields empty');
+    onChangePasword = (e) => {
+        this.setState({
+
+            password: e.target.value
+
+        });
+    }
+
+    onChangeConfirmPasword = (e) => {
+        this.setState({
+
+            cPassword: e.target.value
+
+        });
+    }
+
+    onChangeAddress = (e) => {
+        this.setState({
+
+            address: e.target.value
+
+        });
+    }
+
+    onChangeMobileNumber = (e) => {
+        this.setState({
+
+            mobileNumber: e.target.value
+
+        });
+    }
+
+    onChangeNIC = (e) => {
+        this.setState({
+
+            NICNo: e.target.value
+
+        });
+    }
+
+    signup = () => {
+
+        if (this.state.name == '' || this.state.email == '' || this.state.password == '' || this.state.cPassword == '' || this.state.address == '' || this.state.mobileNumber == '' || this.state.NICNo == '') {
+            alert("Please fill the fields");
+            return;
         }
 
-        
-        if (cpassword !== password) {
-            alert('passwords do not match!');
+        if (this.state.password != this.state.cPassword) {
+            alert("Two passwords much match");
+            return;
         }
 
-        else {
-            var isFoundMail = false;
+        let user = {
+            name: this.state.name,
+            email: this.state.email,
+            password: this.state.password,
+            address: this.state.address,
+            mobileNumber: this.state.mobileNumber,
+            NICNo: this.state.NICNo
+        }
 
-            fetch(dbURL_User + email, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
+        Axios.get('http://localhost:4001/user/' + user.email).then(res => {
+            
+            var userDetails = JSON.stringify(res.data);
+            
+            if (userDetails != '[]') {
+                swal.fire({
+                        title: "Email Error!!",
+                        text: "Email Already exists",
+                        type: "error",
+                        timer: 1000,
+                        showConfirmButton: true
+                    }, function(){
+                        console.log('home');
+              window.location.href = "../index.js";
+            });
+            }
+            else {
+                Axios.post('http://localhost:4001/user/', user).then(() => {
+                    swal.fire({
+                        title: "Success!",
+                        text: "Successfully sign up",
+                        type: "success",
+                        timer: 1000,
+                        showConfirmButton: false
+                    }, function () {
+                       this.props.history.push('/');
+                    });
                 }
-            }).then(
-                response => {
-                    return response.json();
-                }).then(data => {
-                    var user = JSON.stringify(data);
-                    console.log(user);
 
-                    if (user != '[]') {
-                        alert('Email is already in use');
-                    }
-                    else {
-                        var data = {
-                            "name": uname,
-                            "email": email,
-                            "password": password,
-                            "address": address,
-                            "mobileNumber": mobileNumber,
-                            "NICNo": NICNo
-                        };
-                        console.log(data);
+                ).catch(function (err) {
+                    console.log(err);
+                });
+            }
 
-                        fetch(dbURL_User, {
-                            method: 'POST',
-                            body: JSON.stringify(data),
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        }).then(response => {
-                            return response.json();
-                        }).then(data => {
-                            alert('Successful Signup');
-                            ReactDOM.render(<LoginComponent />,
-                                document.getElementById('root'));
-                        }).catch(err => {
-                            alert("Second " + err);
-                        })
-                    }
-                }).catch(err => {
-                    alert("First Err" + err);
-                })
-        }
+        }).catch(function (err) {
+            console.log(err);
+        })
 
-    }
-    login() {
-        ReactDOM.render(<LoginComponent />, document.getElementById('root'));
+
+
     }
 
     render() {
 
         return (
-            <Form>
-                <h3> Sign Up</h3>
-                <Form.Group>
-                    <Form.Label>User Name</Form.Label> 
-                    <Form.Control type="text" placeholder="Enter user name" ref="uname"/>
-                </Form.Group>
-                <Form.Group controlId="formBasicEmail">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="Enter email" ref="email"/>
-                    <Form.Text className="text-muted">
-                       We will never share your email anyone
+            <div className="container shadow-lg p-3 mb-5 bg-white rounded" style={{ marginTop: 120 }}>
+                <Form>
+                    <h3> Sign Up</h3>
+                    <Form.Group>
+                        <Form.Label>User Name</Form.Label>
+                        <Form.Control type="text" placeholder="Enter user name" value={this.state.name} onChange={this.onChangeName} />
+                    </Form.Group>
+                    <Form.Group controlId="formBasicEmail">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="email" placeholder="Enter email" value={this.state.email} onChange={this.onChangeEmail} />
+                        <Form.Text className="text-muted">
+                            We will never share your email anyone
                     </Form.Text>
-                </Form.Group>
-                <Form.Group controlId="formBasicPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" placeholder="Password" ref="password"/>
-                </Form.Group>
-                <Form.Group controlId="formBasicPassword">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <Form.Control type="password" placeholder="Password" ref="cpassword"/>
-                </Form.Group>
-                 <Form.Group>
-                    <Form.Label>Address</Form.Label> 
-                    <Form.Control type="text" placeholder="Enter address" ref="address"/>
-                </Form.Group>
-                 <Form.Group>
-                    <Form.Label>Mobile Number</Form.Label> 
-                    <Form.Control type="text" placeholder="Enter mobile number" ref="mobileNumber"/>
-                </Form.Group>
-                 <Form.Group>
-                    <Form.Label>NIC Number</Form.Label> 
-                    <Form.Control type="text" placeholder="Enter NIC" ref="NICNo"/>
-                </Form.Group>
-                <Button variant="primary" type="submit" onClick={() =>{this.signup()}}>
-                    SignUp
+                    </Form.Group>
+                    <Form.Group controlId="formBasicPassword">
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control type="password" placeholder="Password" value={this.state.password} onChange={this.onChangePasword} />
+                    </Form.Group>
+                    <Form.Group controlId="formBasicPassword">
+                        <Form.Label>Confirm Password</Form.Label>
+                        <Form.Control type="password" placeholder="Confirm Password" value={this.state.cPassword} onChange={this.onChangeConfirmPasword} />
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Address</Form.Label>
+                        <Form.Control type="text" placeholder="Enter address" value={this.state.address} onChange={this.onChangeAddress} />
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Mobile Number</Form.Label>
+                        <Form.Control type="text" placeholder="Enter mobile number" value={this.state.mobileNumber} onChange={this.onChangeMobileNumber} />
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>NIC No</Form.Label>
+                        <Form.Control type="text" placeholder="Enter NIC Number" value={this.state.NICNo} onChange={this.onChangeNIC} />
+                    </Form.Group>
+                    <Button variant="primary" type="button" onClick={this.signup}>
+                        SignUp
                 </Button>
-                <Button variant="primary" type="submit" onClick = {() => {this.login()}}>
-                    Login
-                </Button>
-            </Form>
+                </Form>
+            </div>
         );
     }
 

@@ -6,6 +6,7 @@ import { Button, Form } from 'react-bootstrap';
 import App from '../App';
 import axios from 'axios';
 import swal from 'sweetalert2';
+import {Redirect } from "react-router-dom";
 
 
 class Login extends Component {
@@ -42,18 +43,21 @@ class Login extends Component {
             var userDetails = JSON.stringify(res.data);
 
             if (userDetails != '[]') {
-
-                var name = res.data.name;
-                var address = res.data.address;
-                var mobileNumber = res.data.mobileNumber;
-                var NICNo = res.data.NICNo;
+                for (var user of res.data) {
+                    var name = user.name;
+                    var address = user.address;
+                    var mobileNumber = user.mobileNumber;
+                    var NICNo = user.NICNo;
+                }
 
                 this.setState({
                     name: name,
                     address: address,
                     mobileNumber: mobileNumber,
                     NICNo: NICNo
-                })
+                });
+                localStorage.setItem("email", this.state.email);
+                localStorage.setItem("mobile", this.state.mobileNumber);
 
                 swal.fire({
                     title: "Succesfull",
@@ -61,25 +65,21 @@ class Login extends Component {
                     type: "success",
                     timer: 1000,
                     showConfirmButton: true
-                }, function () {
-                    console.log('home');
-                    window.location.href = "../index.js";
                 });
+                this.props.history.push(`/`);
 
 
             }
-            else{
+            else {
 
-                 swal.fire({
+                swal.fire({
                     title: "Error",
                     text: "Login Unsuccesful!",
                     type: "error",
                     timer: 1000,
                     showConfirmButton: true
-                }, function () {
-                    console.log('home');
-                    window.location.href = "../index.js";
                 });
+                this.props.history.push(`/login`);
 
             }
 

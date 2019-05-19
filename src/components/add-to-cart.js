@@ -1,85 +1,103 @@
-import React, { Component } from 'react';
-import '../App.css';
-import CreditCard from './creditCard';
-import DialogPay from './dialogPay';
-import ReactDOM from 'react-dom';
+import React from 'react';
+import Modal from 'react-bootstrap/Modal'
+import Button from 'react-bootstrap/Button';
+import axios from 'axios';
 
-class AddedTicketList extends Component {
+export default class AddToCart extends React.Component {
 
     constructor(props) {
         super(props);
+
         this.state = {
-            name: this.props.name,
-            NICNo: this.props.NICNo,
-            email: this.props.email
+            trainName:'',
+            cart: {
+                ticketId: '',
+                Date: '',
+                qty: 0
+            }
         }
     }
 
-    getCardPay = function (tot) {
-        ReactDOM.render(
-            <CreditCard total={tot}
-                name={this.state.name}
-                NICNo={this.state.NICNo}
-                email={this.state.email} />, document.getElementById('root')
-        )
-    }
-
-    dialogPay = function (tot) {
-        ReactDOM.render(
-            <DialogPay total={tot}
-                name={this.state.name}
-                NICNo={this.state.NICNo}
-                email={this.state.email} />, document.getElementById('root')
-        )
-    }
-
-    render() {
-        if (this.props.ticketCart != undefined) {
-            var TicketCartList = this.props.ticketCart.map((Ticket) => {
-                return (
-                    <div key={Ticket}>
-                        <p>{Ticket}</p>
-                    </div>
-                )
+    onQtyChange = (e) => {
+        if (e) {
+            this.setState({
+                cart: {
+                    qty: e.target.value,
+                    ticketId: this.props.oldCart.ticketId,
+                    Date: this.props.oldCart.Date
+                }
             })
         }
-        else{
-           return(
-                    <div className="col-md-5">
-                      <h5>Cart is empty</h5>
-                    </div>
-                )
-        }
+    }
+    onChangeCart() {
 
-        const prices = this.props.total;
-        const qty = this.props.totalQty;
-        var tot = 0;
-        var totalQty = qty.length;
+        this.props.newlyAddedCart(this.state.cart);
+       
+    }
 
-        for (var x = 0; x < prices.length; x++) {
-            tot = tot + prices[x] * parseInt(qty[x], 10);
-        }
+    componentDidMount() {
+
+        axios.get('http://localhost:4001/tickets/' + this.props.match.params.ticketId).then(res => {
+            var ticketDetails = JSON.stringify(res);
+            
+            if (ticketDetails != '[]') {
+                for (var ticket of res.data) {                  
+                    var res_trainName = ticket.trainName;
+                }
+                this.setState({                 
+                    trainName: res_trainName,                  
+                })
+            }
+            else {
+                alert('No Tickets are available');
+            }
+
+        }).catch(function (err) {
+            console.log(err);
+        })
+    }
+
+
+    render() {
+
         return (
-            <ul>
-                <h4>Ticket Cart</h4>
-                {TicketCartList}
-                <p>Total :{tot}</p>
-                <p>Payment Method</p>
-                <div className="row">
-                    <div className="col-md-5">
-                        <button onClick={() => this.getCardPay(tot)} className="btn btn-primary btn-sm">
-                            Card Payment
-                       </button>
-                    </div>
-                    <div className="leftpadding">
-                        <button onClick={() => this.dialogPay(tot)} className="btn btn-primary btn-sm">
-                            Dialog Payment
-                       </button>
-                    </div>
+            <Modal
+                {...this.props}
+                size="lg"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Add To Cart - <b><i>{this.state.trainName} Train</i></b>
+                    </Modal.Title>
+                </Modal.Header>
+
+                <div className="modal-body">
+
+                    <form>
+                        <div className="form-group">
+                            <label htmlFor="exampleInputPassword1">Ticket Count</label>
+                            <input type="text" className="form-control" onChange={this.onQtyChange.bind(this)}
+                                id="exampleInputPassword1" value={this.state.cart.qty} />
+                        </div>
+                    </form>
+
+
                 </div>
-            </ul>
+
+                <Modal.Footer>
+
+                    <button type="button" className="btn btn-secondary"
+                        data-dismiss="modal">
+                        Close
+                </button>
+                    <button type="submit" className="btn btn-primary" onClick={this.onChangeCart.bind(this)}>
+                        Add To Cart
+                </button>
+
+
+                </Modal.Footer>
+            </Modal>
         );
     }
 }
-
-export default AddedTicketList;

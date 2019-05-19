@@ -10,14 +10,39 @@ import { Link } from "react-router-dom";
 
 const Ticket = props => (
     <Card className="shadow-lg p-3 mb-5 bg-white rounded">
-        <CardTitle><b><h3>{props.ticket.trainName} Train <i className="fas fa-ticket-alt"></i></h3></b> </CardTitle>
+        <CardTitle>
+             <b><h3>{props.ticket.trainName} Train <i className="fas fa-ticket-alt"></i></h3></b> </CardTitle>
         <CardImg top width="100%" src={cardImg} alt="Card image cap" />
 
-        <CardText><b>Ticket Price :</b> LKR {props.ticket.price}</CardText>
-        <a href={"/ticketbook/" + props.ticket.ticketId}>
-            <Button className="btn btn-primary btn-lg disabled mr-2 ">Book Now <i className="fas fa-book"></i></Button></a>
-        {/* <Link to={"/ticketbook/"+props.ticketId} className="btn btn-primary">Edit</Link> */}
-        <a href={"/cart/" + props.ticket.ticketId}><Button className="btn btn-primary btn-lg disabled mr-2">Add to Cart <i className="fas fa-shopping-cart"></i></Button></a>
+        <CardText className="pt-3">
+            <b>Ticket Price :</b> LKR {props.ticket.price}
+        </CardText>
+        <CardText className="pt-1">
+            <b>Start Place :</b> {props.ticket.start}
+        </CardText>
+        <CardText className="pt-1">
+            <b>Destination Place :</b>  {props.ticket.destination}
+        </CardText>
+        <CardText className="pt-1">
+            <b>Arrival Time :</b>  {props.ticket.arrivalTime}
+        </CardText>
+        <CardText className="pt-1">
+            <b>Departure Time :</b>  {props.ticket.departureTime}
+        </CardText>
+        <CardText className="pt-1">
+            <b>Ticket Class :</b>  {props.ticket.ticketClass} Class
+        </CardText>
+        <CardText className="pt-1">
+            <b>Available ticket Count :</b>  {props.ticket.avaialableQty} tickets
+        </CardText>
+        <div className="col-md-12 text-center"> 
+            <a href={"/ticketbook/" + props.ticket.ticketId}>
+               <Button className="btn btn-primary btn-lg disabled mr-2">
+                      Book Now 
+                 <i className="fas fa-book"></i>
+               </Button>
+            </a>
+        </div>
     </Card>
 
 );
@@ -35,23 +60,25 @@ export default class TicketList extends Component {
             this.setState({
                 tickets: res.data
             });
-            console.log(res.data);
+            
         }).catch(function (err) {
             console.log(err);
         });
     }
 
-    // //After adding this, we do not need to refresh the page to see the updated codes
-    // componentDidUpdate() {
-    //     axios.get('http://localhost:4001/tickets/').then(res => {
-    //         this.setState({
-    //             tickets: res.data
-    //         });
-    //         console.log(res.data);
-    //     }).catch(function (err) {
-    //         console.log(err);
-    //     });
-    // }
+    //After adding this, we do not need to refresh the page to see the updated codes
+    componentDidUpdate() {
+        axios.get('http://localhost:4001/tickets/').then(res => {
+            if(this.state.tickets != res.data){
+            this.setState({
+                tickets: res.data
+            });
+        }
+           
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
 
     ticketList() {
         return this.state.tickets.map(function (currentticket, i) {
@@ -60,6 +87,7 @@ export default class TicketList extends Component {
     }
 
     render() {
+
         return (
             <CardColumns>
                 {this.ticketList()}

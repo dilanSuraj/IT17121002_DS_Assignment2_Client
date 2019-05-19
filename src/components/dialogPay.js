@@ -48,7 +48,7 @@ export default class MobilePaymentDialog extends React.Component {
                 aria-labelledby="contained-modal-title-vcenter"
                 centered >
                 <Modal.Header closeButton>
-                    <Modal.Title id="contained-modal-title-vcenter">
+                    <Modal.Title id="contained-modal-title-vcenter" className="col-md-12 text-center">
                         Mobile Card Payment
                     </Modal.Title>
                 </Modal.Header>
@@ -93,8 +93,8 @@ export default class MobilePaymentDialog extends React.Component {
 
                 <Modal.Footer>
 
-                    <button type="button" className="btn btn-secondary"
-                        data-dismiss="modal">
+                   <button type="button" className="btn btn-secondary"
+                        data-dismiss="modal" onClick={this.props.onHide}>
                         Close
                 </button>
                     <button type="submit" className="btn btn-primary" onClick={this.onChangePayment.bind(this)}>

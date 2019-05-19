@@ -58,32 +58,32 @@ export default class CreditCardPaymentDialog extends React.Component {
 
                     <form>
                         <div className="form-group">
-                            <label for="exampleInputEmail1">Email address</label>
+                            <label htmlFor="exampleInputEmail1">Email address</label>
                             <input type="email" className="form-control"
                                 id="exampleInputEmail1" value={this.props.cardpayment.email} />
                         </div>
                         <div className="form-group">
-                            <label for="exampleInputPassword1">Card Number</label>
+                            <label htmlFor="exampleInputPassword1">Card Number</label>
                             <input type="text" className="form-control" value={this.state.card_Payment.cardNumber}
                                 onChange={this.onCardNumberChange}
                                 id="exampleInputPassword1" placeholder="Card Number" />
                         </div>
 
                         <div className="form-group">
-                            <label for="exampleInputPassword1">CVC</label>
+                            <label htmlFor="exampleInputPassword1">CVC</label>
                             <input type="text" className="form-control" value={this.state.card_Payment.cvc}
                                 onChange={this.onCardNumberChange}
                                 id="exampleInputPassword1" placeholder="CVC" />
                         </div>
 
                         <div className="form-group">
-                            <label for="exampleInputPassword1">Total Payment</label>
+                            <label htmlFor="exampleInputPassword1">Total Payment</label>
                             <input type="text" className="form-control" value={this.props.cardpayment.total}
                                 id="exampleInputPassword1" />
                         </div>
 
                         <div className="form-group">
-                            <label for="exampleInputPassword1">Sub Total Payment</label>
+                            <label htmlFor="exampleInputPassword1">Sub Total Payment</label>
                             <input type="text" className="form-control"
                                 id="exampleInputPassword1" value={this.props.cardpayment.subTotal} />
                         </div>

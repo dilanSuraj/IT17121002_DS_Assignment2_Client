@@ -7,6 +7,7 @@ import MobilePaymentDlg from './dialogPay';
 import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 
+
 export default class TicketBook extends Component {
 
 
@@ -17,6 +18,7 @@ export default class TicketBook extends Component {
         this.onChangePrice = this.onChangePrice.bind(this);
         this.onChangeTrainName = this.onChangeTrainName.bind(this);
         this.onChangeBookedSeatCount = this.onChangeBookedSeatCount.bind(this);
+       
 
         this.state = {
             price: 0,
@@ -25,28 +27,38 @@ export default class TicketBook extends Component {
             dynamicQty: '',
             bookedQty: 0,
             subTotal: 0,
+            departureTime:'',
+            arrivalTime:'',
+            bookedDate:'',
             total: 0,
+            useremail:'',
+            usermobile:'',
             discountPercentage: 0,
             employeeStatus: '',
             payment_mobilePayment: false,
             payment_creditCard: false,
-
+            bookingDate:'',
+            ticket: {
+                ticketId:'',
+                availableQty: ''
+            },
             mobile_payment: {
 
                 email: '',
                 pin: '',
                 total: 0,
                 subTotal: 0,
-                mobileNumber: ''
+                mobileNumber: '',
+                bookingDate:''
             },
             card_Payment: {
-                creditCardPaymentId: '',
+               
                 email: '',
                 cardNumber: '',
                 cvc: '',
                 total: 0,
                 subTotal: 0,
-                userId: ''
+                bookingDate:''
             }
 
 
@@ -56,6 +68,17 @@ export default class TicketBook extends Component {
 
     }
     componentDidMount() {
+
+        let email = localStorage.getItem('email');
+        let mobileNumber = localStorage.getItem('mobile');
+
+        if(email == ''|| mobileNumber == ''){
+           this.props.history.push(`/login`);
+        }
+        this.setState({
+            useremail: email,
+            usermobile: mobileNumber
+        })
 
         axios.get('http://localhost:4001/discount/').then(res => {
 
@@ -72,11 +95,16 @@ export default class TicketBook extends Component {
         });
         axios.get('http://localhost:4001/tickets/' + this.props.match.params.ticketId).then(res => {
             var ticketDetails = JSON.stringify(res);
+            var availableTicketCount = this.state.dynamicQty;
+
             if (ticketDetails != '[]') {
                 for (var ticket of res.data) {
                     var res_price = ticket.price;
                     var res_trainName = ticket.trainName;
                     var res_avaialableQty = ticket.avaialableQty;
+                    var res_departureTime = ticket.departureTime;
+                    var res_arrivalTime = ticket.arrivalTime;
+                    var res_ticketClass = ticket.ticketClass
 
                 }
                 this.setState({
@@ -84,7 +112,15 @@ export default class TicketBook extends Component {
                     price: res_price,
                     trainName: res_trainName,
                     initialQty: res_avaialableQty,
-                    dynamicQty: res_avaialableQty
+                    dynamicQty: res_avaialableQty,
+                    departureTime: res_departureTime,
+                    ticketClass: res_ticketClass,
+                    arrivalTime: res_arrivalTime,
+                    ticket: {
+                        ticketId:this.props.match.params.ticketId,
+                        availableQty: availableTicketCount
+                    }
+
                 })
             }
             else {
@@ -101,13 +137,17 @@ export default class TicketBook extends Component {
             price: e.target.value
         });
     }
+    onChangeBookingdate = (e) =>{
+        this.setState({
+            bookingDate: e.target.value
+        });
+    }
 
     onChangeTrainName(e) {
         this.setState({
             trainName: e.target.value
         });
     }
-
     onChangeBookedSeatCount(e) {
 
 
@@ -120,6 +160,7 @@ export default class TicketBook extends Component {
             subTotal: seatsToBook * this.state.price,
             total: totalPrice
         });
+        
 
     }
     onChangeCreditCardPayment(newPayment) {
@@ -131,17 +172,34 @@ export default class TicketBook extends Component {
                 cardNumber: newPayment.cardNumber,
                 cvc: newPayment.cvc,
                 total: this.state.total,
-                subTotal: this.state.subTotal
+                subTotal: this.state.subTotal,
+                bookingDate:this.state.bookingDate
             }
         });
+        var dynamicQty = this.state.dynamicQty;
+         this.setState({
+                    ticket: {
+                        ticketId:this.state.ticket.ticketId,
+                        availableQty: this.state.dynamicQty
+                    }
+
+                });
+
         axios.post('http://localhost:4001/creditcard/', this.state.card_Payment).then(
-            alert('Successfully added a ticket payment using credit card, please check your mail for confirmation')
-            ).catch(function (err) {
+            alert('Successfully added a ticket payment using credit payment, please check your phone for confirmation')
+        ).catch(function (err) {
+            console.log(err);
+        });
+
+        axios.put('http://localhost:4001/tickets/', this.state.ticket).then(()=>{ 
+           console.log("Available ticket count updated");}
+        ).catch(function (err) {
             console.log(err);
         });
     }
 
     onChangeMobilePayment(newPayment) {
+
 
         this.setState({
             mobile_payment: {
@@ -150,16 +208,29 @@ export default class TicketBook extends Component {
                 pin: newPayment.pin,
                 total: this.state.total,
                 subTotal: this.state.subTotal,
-                mobileNumber: this.state.mobileNumber
+                mobileNumber: this.state.mobileNumber,
+                bookingDate:this.state.bookingDate
             }
         });
         axios.post('http://localhost:4001/dialogpay/', this.state.mobile_payment).then(
             alert('Successfully added a ticket payment using mobile payment, please check your phone for confirmation')
-            ).catch(function (err) {
+        ).catch(function (err) {
             console.log(err);
         });
 
+        var dynamicQty = this.state.dynamicQty;
+         this.setState({
+                    ticket: {
+                        ticketId:this.state.ticket.ticketId,
+                        availableQty: this.state.dynamicQty
+                    }
 
+                });
+        axios.put('http://localhost:4001/tickets/', this.state.ticket).then(()=>{ 
+           console.log("Available ticket count updated");}
+        ).catch(function (err) {
+            console.log(err);
+        });
 
     }
 
@@ -175,7 +246,7 @@ export default class TicketBook extends Component {
         return (
             <div className="container shadow-lg p-3 mb-5 bg-white rounded" style={{ marginTop: 120 }}>
                 <div style={{ marginTop: 20 }}>
-                    <h3>Book your ticket in <b><i>{this.state.trainName}</i></b> train</h3>
+                    <h3>Book your ticket in <b><i>{this.state.trainName} - Class {this.state.ticketClass}</i></b> train</h3>
                     <form>
                         <br />
                         <h5>Employee Status: <b>{this.state.employeeStatus}</b></h5>
@@ -218,17 +289,46 @@ export default class TicketBook extends Component {
                                 onChange={this.onChangeBookedSeatCount} />
                         </InputGroup>
 
+                       
+                        <InputGroup className="mb-3">
+                            <InputGroup.Prepend>
+                                <InputGroup.Text>Train Departure Time</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <FormControl value={this.state.departureTime}
+                            />
+                            <InputGroup.Prepend className="pl-3">
+                                <InputGroup.Text>Train Arrival Time</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <FormControl value={this.state.arrivalTime}
+                                 />
+                        </InputGroup>
+
+                         <InputGroup className="mb-3">
+                            <InputGroup.Prepend>
+                                <InputGroup.Text>Booking Date</InputGroup.Text>
+                            </InputGroup.Prepend >
+                            <FormControl  type="date"
+                                          name="date"
+                                          id="exampleDate"
+                                           value={this.state.bookedDate} onChange={this.onChangeBookingdate}/>
+                        </InputGroup>
+
+          
                         <ButtonToolbar>
                             <Button
                                 variant="primary mr-2"
                                 onClick={() => this.setState({
                                     payment_mobilePayment: true,
                                     payment_creditCard: false,
+                                     ticket: {
+                        ticketId:this.state.ticket.ticketId,
+                        availableQty: this.state.dynamicQty
+                    },
                                     mobile_payment: {
-                                        email: 'dilan.amarasinghe214263@gmail.com',
+                                        email: this.state.useremail,
                                         total: this.state.total,
                                         subTotal: this.state.subTotal,
-                                        mobileNumber: '+94754494954',
+                                        mobileNumber: this.state.usermobile,
                                         pin: this.state.pin
                                     }
 
@@ -241,9 +341,13 @@ export default class TicketBook extends Component {
                                 onClick={() => this.setState({
                                     payment_mobilePayment: false,
                                     payment_creditCard: true,
+                                    ticket: {
+                        ticketId:this.state.ticket.ticketId,
+                        availableQty: this.state.dynamicQty
+                    },
                                     card_Payment: {
 
-                                        email: 'dilan.amarasinghe214263@gmail.com',
+                                        email: this.state.useremail,
                                         cardNumber: this.state.cardNumber,
                                         cvc: this.state.cvc,
                                         total: this.state.total,

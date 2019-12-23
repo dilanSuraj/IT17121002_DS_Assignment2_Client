@@ -102,7 +102,7 @@ class Signup extends Component {
             NICNo: this.state.NICNo
         }
 
-        Axios.get('http://localhost:4001/user/' + user.email).then(res => {
+        Axios.get('https://e-train-book-api.herokuapp.com/user/' + user.email).then(res => {
             
             var userDetails = JSON.stringify(res.data);
             
@@ -119,7 +119,7 @@ class Signup extends Component {
             });
             }
             else {
-                Axios.post('http://localhost:4001/user/', user).then(() => {
+                Axios.post('https://e-train-book-api.herokuapp.com/user/', user).then(() => {
                     swal.fire({
                         title: "Success!",
                         text: "Successfully sign up",

@@ -80,7 +80,7 @@ export default class TicketBook extends Component {
             usermobile: mobileNumber
         })
 
-        axios.get('http://localhost:4001/discount/').then(res => {
+        axios.get('https://e-train-book-api.herokuapp.com/discount/').then(res => {
 
             var discountAmt = res.data.discountAmt;
             var employeeStatus = res.data.employeeStatus;
@@ -93,7 +93,7 @@ export default class TicketBook extends Component {
         }).catch(function (err) {
             console.log(err);
         });
-        axios.get('http://localhost:4001/tickets/' + this.props.match.params.ticketId).then(res => {
+        axios.get('https://e-train-book-api.herokuapp.com/tickets/' + this.props.match.params.ticketId).then(res => {
             var ticketDetails = JSON.stringify(res);
             var availableTicketCount = this.state.dynamicQty;
 
@@ -185,13 +185,13 @@ export default class TicketBook extends Component {
 
                 });
 
-        axios.post('http://localhost:4001/creditcard/', this.state.card_Payment).then(
+        axios.post('https://e-train-book-api.herokuapp.com/creditcard/', this.state.card_Payment).then(
             alert('Successfully added a ticket payment using credit payment, please check your phone for confirmation')
         ).catch(function (err) {
             console.log(err);
         });
 
-        axios.put('http://localhost:4001/tickets/', this.state.ticket).then(()=>{ 
+        axios.put('https://e-train-book-api.herokuapp.com/tickets/', this.state.ticket).then(()=>{ 
            console.log("Available ticket count updated");}
         ).catch(function (err) {
             console.log(err);
@@ -212,7 +212,7 @@ export default class TicketBook extends Component {
                 bookingDate:this.state.bookingDate
             }
         });
-        axios.post('http://localhost:4001/dialogpay/', this.state.mobile_payment).then(
+        axios.post('https://e-train-book-api.herokuapp.com/dialogpay/', this.state.mobile_payment).then(
             alert('Successfully added a ticket payment using mobile payment, please check your phone for confirmation')
         ).catch(function (err) {
             console.log(err);
@@ -226,7 +226,7 @@ export default class TicketBook extends Component {
                     }
 
                 });
-        axios.put('http://localhost:4001/tickets/', this.state.ticket).then(()=>{ 
+        axios.put('https://e-train-book-api.herokuapp.com/tickets/', this.state.ticket).then(()=>{ 
            console.log("Available ticket count updated");}
         ).catch(function (err) {
             console.log(err);

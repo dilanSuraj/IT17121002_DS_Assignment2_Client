@@ -56,7 +56,7 @@ export default class TicketList extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:4001/tickets/').then(res => {
+        axios.get('https://e-train-book-api.herokuapp.com/tickets/').then(res => {
             this.setState({
                 tickets: res.data
             });
@@ -68,7 +68,7 @@ export default class TicketList extends Component {
 
     //After adding this, we do not need to refresh the page to see the updated codes
     componentDidUpdate() {
-        axios.get('http://localhost:4001/tickets/').then(res => {
+        axios.get('https://e-train-book-api.herokuapp.com/tickets/').then(res => {
             if(this.state.tickets != res.data){
             this.setState({
                 tickets: res.data
